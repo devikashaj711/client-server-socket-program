@@ -1,10 +1,13 @@
 import socket
+import json
 
 # Define the server port
 SERVER_PORT = 2223
 
 # Create a socket object and bind it to the server port
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Allow reuse of the address
+
 server_socket.bind(('0.0.0.0', SERVER_PORT))
 server_socket.listen(5)  # Start listening for connections
 
@@ -26,28 +29,66 @@ while True:
             if not line:
                 break  # Exit the loop if no data is received
 
-            print(f"Received: {line.strip()}")
+            print(f"Received: {line}")
 
-            # ADD text
+            #TODO
+            # check command
             text = line.strip()
-            # print(text)
-            # text_split = text.split()
+            command = text.split()[0]
+            print("command:", command)
 
-            # # fine line count
-            # # append to first word
-            # with open("database.txt", "r") as file:
+            if command == "ADD" :
+                print("200 OK")
+
+
+
+            try:
+                with open("data.json", "r") as file:
+                    current_data = json.load(file)
+                    id =  1001 + len(current_data)
+            except:
+                current_data = [] 
+                id = 1001
+                print("new file")
+            
+
+            print(current_data)
+
+
+
+
+
+
+        
+            # with open("data.json", "r") as file:
             #     line_count = 1001
             #     # Loop through each line in the file
             #     for line in file:
             #         line_count += 1
-            # print(line_count)
+            #     print(line_count)
+            #     # line_count = json.load(file)
 
-            # text_combined = str(line_count) + " " + text_split[1] + " " + text_split[2] + " " + text_split[3]
-            # print("text_combined")
-            # print(text_combined)
-            # with open("database.txt", "a") as file:
-            #     # Write a line of text to the file
-                # file.write("\n" + text_combined)
+            # #TODO
+            # # Create data block
+            data_block = {
+                 "id": str(id),
+                 "first name": text.split()[1],
+                 "last_name": text.split()[2],
+                 "phone_number": text.split()[3]
+            }
+            # # open file and add data
+            
+            current_data.append(data_block)
+
+            with open('data.json', 'w') as file:
+                 json.dump(current_data, file)
+
+
+
+            client_text = line.strip()
+
+            
+
 
 
             client_output.write(line)

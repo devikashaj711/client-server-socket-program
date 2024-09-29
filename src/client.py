@@ -1,5 +1,6 @@
 import socket
 import sys
+import json
 
 # Define the server port
 SERVER_PORT = 2223
@@ -37,9 +38,7 @@ try:
         server_input = client_input.readline()
         if not server_input:
             break  # Exit if no response from server
-
-        print(f"Echo: {server_input.strip()}")
-
+        
     # Close input/output streams and socket
     client_input.close()
     client_output.close()
