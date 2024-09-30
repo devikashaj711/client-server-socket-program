@@ -28,9 +28,9 @@ try:
     # Communicate with the server by sending user input and receiving server response
     while True:
         user_input = input("Enter message: ")
+        
         if not user_input:
             break  # Exit if input is empty
-
 
         client_output.write(user_input + '\n')
         client_output.flush()
@@ -39,11 +39,24 @@ try:
         server_input = client_input.readline()
         if not server_input:
             break  # Exit if no response from server
-
-        text = user_input.split()[0]
-        if text == "QUIT":
+        
+        # check command and command format
+        input_command = server_input.strip()
+        command_words = input_command.split()
+        command_length = len(command_words)
+        command = command_words[0]
+        
+        # switch function for address book operations
+        def command_operations(command):
+            if(command == "QUIT" and command_length == 1) :
+                quit_client()
+        
+        # function to quit the client
+        def quit_client(): 
             exit()
         
+        # function call to do address command operations   
+        command_operations(command)    
         
     # Close input/output streams and socket
     client_input.close()
