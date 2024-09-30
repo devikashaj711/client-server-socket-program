@@ -31,6 +31,7 @@ try:
         if not user_input:
             break  # Exit if input is empty
 
+
         client_output.write(user_input + '\n')
         client_output.flush()
 
@@ -38,6 +39,11 @@ try:
         server_input = client_input.readline()
         if not server_input:
             break  # Exit if no response from server
+
+        text = user_input.split()[0]
+        if text == "QUIT":
+            exit()
+        
         
     # Close input/output streams and socket
     client_input.close()
