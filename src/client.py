@@ -1,6 +1,7 @@
-#Client connecting to the server using socket
-#The clients sends commands to the server and server send back the result to client
-
+"""
+This script contains code for client connecting to the server using socket
+The client sends commands to the server and server send back the result to client
+"""
 #Import necessary libraries for socket programming
 import socket
 import sys
@@ -8,8 +9,9 @@ import sys
 # Constant for server port
 SERVER_PORT = 2223
 
-# Defining main function to handle client communication with server
 def main() :
+    """Defining main function to handle client communication with server
+    """
 
     # Define the server port
     global SERVER_PORT
@@ -34,24 +36,25 @@ def main() :
                     print("No response from server. Exiting.")
                     break
                 else:
-                    print("S", server_response) 
+                    print("S:", server_response) 
 
-                # Shutdown
+                # Handling shutdown, exiting the script
                 if user_input == "SHUTDOWN" and server_response == "200 OK":
                     sys.exit(0)
 
-                # QUIT
+                # Handling QUIT, exiting the script
                 if user_input == "QUIT" and server_response == "200 OK":
                     try:
                         client_socket.close()
-                    except OSError as e:
+                    except OSError:
                         print("Error occured due to closing the client socket")
                     break
 
-            except Exception as e:
-                print(f"An error occurred: {e}")
+            except Exception:
+                print(f"An error occurred")
                 break
-            
-#Starting of the program
+
+
+# Starting of the program
 if __name__ == "__main__":
     main()

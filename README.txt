@@ -31,6 +31,7 @@ Error Handling
 
 The server handles invalid or malformed commands without crashing.
 If an invalid command is sent, the server responds with an error message "300 Invalid command", and the connection remains active.
+Also if the user enters more than 8 characters for first namd and last name and phone number not equal to 12 characters, the server responds with an error message "Unable to add, invalid data"
 If the server encounters an error during operation, it logs the error and continues to run, unless a critical error occurs that requires a shutdown.
 Clients that disconnect unexpectedly will not crash the server, which will continue to allow new clients to connect.
 
@@ -54,7 +55,7 @@ This project does not require compilation, but it needs to be executed in a Pyth
 
 Running the Server
 
-To run the server, navigate to the directory containing the server script and run:
+To run the server, navigate to the directory containing the scripts (server.py & client.py) and run:
 python3 server.py
 You will see the below text in the terminal
 Server listening on port <port number>...
@@ -65,6 +66,7 @@ Running the Client
 
 To run the client, navigate to the directory containing the client script and run:
 python3 client.py <IP address>
+python3 client.py 127.0.0.1
 You will see the below text in the terminal
 Connected to <IP address> on port <port number>
 C:
@@ -72,7 +74,7 @@ You will see the below text in the Server terminal
 Accepted connection from ('127.0.0.1', 64597)
 
 
-To implement ADD command
+To execute ADD command
 
 In the Client terminal, enter the below text
 C: ADD <first-name> <last-name> <phone-number>
@@ -83,7 +85,7 @@ If the command is not in the specified formatt, server will take it as a invalid
 Max of only 20 records can be added. If you try to add more than 20, it will show "The Address book is full with 20 records, so unable to add record" message 
 
 
-To implement LIST command
+To execute LIST command
 
 In the Client terminal, enter the below text
 C: LIST
@@ -94,31 +96,31 @@ The list of records in the book is:
 If the command is not in the specified format, server will take it as a invalid command
 
 
-To implement DELETE command
+To execute DELETE command
 
 In the Client terminal, enter the below text
 C: DELETE <id>
 Once the command is received by the server, it will delete the record based on the id sent by the client as below
-S 200 OK
+S: 200 OK
 If the command is not in the specified format, server will take it as a invalid command
 If you try to delete a record that does not exists, it will show "No such record exist" message
 If you try to delete a record from an empty address book, it will show "Address book is empty, deleteion not possible" message
 
 
-To implement SHUTDOWN command
+To execute SHUTDOWN command
 
 In the Client terminal, enter the below text
 C: SHUTDOWN
 Once the command is received by the server, it will terminate both the server and client
-S 200 OK
+S: 200 OK
 
 
-To implement QUIT command
+To execute QUIT command
 
 In the Client terminal, enter the below text
 C: QUIT
 Once the command is received by the server, it will terminate client
-S 200 OK
+S: 200 OK
 
 
 Output
@@ -127,17 +129,17 @@ Output
 Output for Add
 --------------
 C: ADD DEVIKA SHAJ 456-345-3456
-S 200 OK
+S: 200 OK
 The new record Id is 1001
 
 C: ADD AYSHA GULSHAN 786-675-5678
-S 200 OK
+S: 200 OK
 The new record Id is 1002
 
 Output for List
 ---------------
 C: LIST
-S 200 OK
+S: 200 OK
 The list of records in the book is:
 1001     DEVIKA SHAJ     456-345-3456
 1002     AYSHA GULSHAN   786-675-5678
@@ -147,24 +149,29 @@ The list of records in the book is:
 Output for Delete
 -----------------
 C: DELETE 1003
-S 200 OK
+S: 200 OK
 
 
 Output for Shutdown 
 -------------------
 C: SHUTDOWN
-S 200 OK
+S: 200 OK
 
 
 Output for Quit 
 -------------------
 C: QUIT
-S 200 OK
+S: 200 OK
 
 
 Output for Invalid command
 --------------------------
 C: DELETE
-S 300 invalid command
+S: 300 invalid command
 
+
+Work Distribution
+-----------------
+Aysha Gulshan - Add, List
+Devika Shaj - Delete, Shutdown and Quit
 

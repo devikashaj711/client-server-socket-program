@@ -1,24 +1,28 @@
-#Server creates a socket for communicating with the client
-
-#Import necessary libraries for socket programming
+"""
+Server creates a socket for communicating with the client
+Developed by 
+Devika Shaj UMID: 2253223
+Aysha Gulshan UMID: 14620948
+"""
+# Importing required  libraries
 import socket
 import json
-
+import re
 
 #Declaring the global variable
 client_socket = None
 command_words = []
 record_exist = False
   
-# Defining main function to client and server connection    
+  
 def main() :
-    
+    """Main function to initialise socket object and start listening  
+    """
     # Define the server port
     SERVER_PORT = 2223
 
     #Defining global variable
     global client_socket
-    global server_socket
     
     try : 
         # Create a socket object and bind it to the server port
@@ -46,8 +50,9 @@ def main() :
             print(f"Error in accepting the socket: {accept_error}")
 
 
-# Defining the function to handle the client server connection
 def handleClientServerConnection(client_socket):
+    """Function to handle the client server connection  
+    """
     while True:
         try:
             client_data = client_socket.recv(1024).decode().strip()
@@ -56,8 +61,7 @@ def handleClientServerConnection(client_socket):
             print(f"Received command: {client_data}")
             res = handle_command_operations(client_data, client_socket)
             if res == "SHUTDOWN":
-                return "SHUTDOWN" 
-                           
+                return "SHUTDOWN"           
         except socket.error as accept_error:
             print(f"Error in handling the connection: {accept_error}")
             break
@@ -65,22 +69,24 @@ def handleClientServerConnection(client_socket):
     # Close client socket after handling
     client_socket.close()
       
-# Defining a method to handle address book command operations
+
 def handle_command_operations(input_command, client_socket):
+    """Defining a method to handle address book command operations
+    """
 
     #Declaring command word globally
     global command_words  
     
-    # spliting the input command word to perform the actual operations
+    # spliting the input command to words to perform the actual operations
     command_words = input_command.split()
     command_length = len(command_words)
     single_command = command_words[0]
 
     #To read the records from the address book
-    current_address_data = load_record_read()
+    current_address_data = load_record_read(client_socket)
     record_length = len(current_address_data)
     
-    # Commands operations 
+    # Calling respective functions for every defined commands 
     if single_command == "ADD" and command_length == 4:
         add_record(current_address_data,record_length) 
         
@@ -100,30 +106,39 @@ def handle_command_operations(input_command, client_socket):
         client_socket.send(b"300 invalid command")     
  
             
-# function to load address book in write mode
 def load_record_write(current_data):
+    """Function to write records into address book
+    """
     try :
         with open('data.json', 'w') as file:
             json.dump(current_data, file)
 
-    except FileNotFoundError as file_error:
-        print(f"File not found error: {file_error}")
+    except FileNotFoundError:
+        print(f"ERROR File not found")
                     
             
-# function to load address book in read mode
-def load_record_read():
+def load_record_read(client_socket):
+    """Function to load address book in read mode
+    """
     try :
         with open('data.json', 'r') as file:
             current_data = json.load(file)
             return current_data
         
-    except FileNotFoundError as file_error:
-        print(f"File not found error: {file_error}")   
+    except FileNotFoundError:
+        print(f"File not found")
+        client_socket.send(b"ERROR File not found")
     
-# function to delete record in the address book
-def delete_records(current_address_data,delete_address_length):
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        client_socket.send(b"ERROR File corrupted")
+
+
+def delete_records(current_address_data,address_record_length):
+    """Function to delete record in the address book
+    """
     try:
-        if delete_address_length > 0 :
+        if address_record_length > 0 :
             delete_id = command_words[1]
             record_removed = []
             record_exist = False
@@ -138,31 +153,35 @@ def delete_records(current_address_data,delete_address_length):
                 load_record_write(current_address_data)
                 client_socket.send(b"200 OK")
             else :
-                client_socket.send(b"No such record exist")  
+                client_socket.send(b"No such record exists")  
         else:
-            client_socket.send(b"Address book is empty, deleteion not possible")
+            client_socket.send(b"Address book is empty, deletion not possible")
 
-    except socket.error as socket_error:
-        print(f"Unable to delete: {socket_error}")  
-        
-# function to list record in the address book
-def list_records(current_address_data,delete_address_length):
+    except socket.error:
+        print(f"ERROR Unable to delete")  
+
+
+def list_records(current_address_data,address_record_length):
+    """ Function to list record in the address book
+    """
     try: 
-        if delete_address_length > 0 :
-            response = "200 OK\nThe list of records in the book is:\n"
+        if address_record_length > 0 :
+            response = "200 OK\nThe list of records in the book:\n"
             for record in current_address_data:
                 response += f"{record['id']}\t {record['first name']} {record['last_name']}\t {record['phone_number']}\n"
             client_socket.send(response.encode() )
         else:
             client_socket.send(b"Address book is empty")
 
-    except socket.error as socket_error:
-        print(f"Unable to list: {socket_error}")  
+    except socket.error:
+        print(f"ERROR Unable to list")  
             
-# function to add record in the address book
+
 def add_record(current_address_data,address_record_length):
+    """Function to add record in the address book
+    """
     try:
-        if address_record_length  < 20:
+        if address_record_length < 20:
             if current_address_data and address_record_length != 0 :
                 last_record = current_address_data[-1]
                 last_record_id = int(last_record['id'])
@@ -171,38 +190,49 @@ def add_record(current_address_data,address_record_length):
                 current_address_data = []    
                 id = 1001  
 
-            data_block = {
-                "id": str(id),
-                "first name": command_words[1],
-                "last_name": command_words[2],
-                "phone_number": command_words[3]
-            }    
-            current_address_data.append(data_block)
-            load_record_write(current_address_data)
-            client_socket.send(f"200 OK \nThe new record Id is {id}".encode())
+            if command_words[1].isalpha() and command_words[2].isalpha() and re.fullmatch(r'^\d+(-\d+)*$', command_words[3]) :
+                if len(command_words[1])<= 8 and len(command_words[2])<=8 and len(command_words[3]) == 12: 
+                    data_block = {
+                        "id": str(id),
+                        "first name": command_words[1],
+                        "last_name": command_words[2],
+                        "phone_number": command_words[3]
+                    }    
+                    current_address_data.append(data_block)
+                    load_record_write(current_address_data)
+                    client_socket.send(f"200 OK \nThe new record Id is {id}".encode())
+                else:
+                    client_socket.send(b"Unable to add, invalid data")
+            else:
+                client_socket.send(b"Unable to add, invalid data")
         else:
             client_socket.send(b"The Address book is full with 20 records, so unable to add record")
 
-    except socket.error as socket_error:
-        print(f"Unable to add: {socket_error}") 
+    except socket.error:
+        print(f"ERROR Unable to add") 
 
-# function to shutdown the server
+
 def shutdown_server(): 
+    """Function to shutdown the server
+    """
     try:  
         client_socket.send(b"200 OK")
         client_socket.close()  
 
     except socket.error as socket_error:
-        print(f"Unable to shutdown: {socket_error}") 
+        print(f"ERROR Unable to shutdown") 
 
-# function to quit the client
+
 def quit_client(): 
+    """Function to quit the client
+    """
     try:
         client_socket.send(b"200 OK")   
 
     except socket.error as socket_error:
         print(f"Unable to quit: {socket_error}")
-                          
-#Starting of the program
+
+
+# Starting of the program
 if __name__ == "__main__":
     client_handler = main()
